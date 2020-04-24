@@ -1,32 +1,75 @@
 # fitbit-module-memory
 Investigation of memory consumption of various ways of structuring a module.
 
-Three objects are created in three different ways. Each object can access a function of about 10kB in size.
+Three objects are created in three different ways. Each object can access a large function.
 
-(I attempted to verify the existence and size of the function by examining its impact on index.js.snapshot: without the function, that file becomes about 10kB smaller. The function is callable and results from it are as expected.)
+## App Output
 
-The question: why doesn't memory availability reduce by about 10kB whenever instances of the object are created (and prototype is NOT used)?
+```
+ObjectNotUsingPrototype
 
-## App output
+mem used instantiating object = 88
 
-App: mem used instantiating ObjectNotUsingPrototype = 88                        (app/index.js:177,28)
+mem used instantiating object = 48
 
-App: mem used instantiating ObjectNotUsingPrototype = 48                        (app/index.js:180,28)
+mem used instantiating object = 48
 
-App: mem used instantiating ObjectNotUsingPrototype = 48                        (app/index.js:183,28)
+Do object functions refer to the same thing? false
 
-App: Do objectNotUsingPrototype functions refer to the same thing? false         (app/index.js:191,1)
+ObjectUsingPrototype
 
-App: mem used instantiating ObjectUsingPrototype = 16                           (app/index.js:201,28)
+mem used instantiating object = 16
 
-App: mem used instantiating ObjectUsingPrototype = 16                           (app/index.js:204,28)
+mem used instantiating object = 16
 
-App: mem used instantiating ObjectUsingPrototype = 16                           (app/index.js:207,28)
+mem used instantiating object = 16
 
-App: Do objectUsingPrototype functions refer to the same thing? true             (app/index.js:215,1)
+Do object functions refer to the same thing? true
 
-App: mem used instantiating ObjectUsingClass = 88                               (app/index.js:223,28)
+ObjectUsingClass
 
-App: mem used instantiating ObjectUsingClass = 48                               (app/index.js:226,28)
+mem used instantiating object = 88
 
-App: mem used instantiating ObjectUsingClass = 48                               (app/index.js:229,28)
+mem used instantiating object = 48
+
+mem used instantiating object = 48
+
+Do object functions refer to the same thing? false
+
+ObjectUsingClosure
+
+mem used instantiating object = 96
+
+mem used instantiating object = 56
+
+mem used instantiating object = 56
+
+Do object functions refer to the same thing? false
+
+ObjectUsingClosureFactory
+
+mem used instantiating object = 48
+
+mem used instantiating object = 48
+
+mem used instantiating object = 48
+
+Do object functions refer to the same thing? false
+
+ObjectUsingTypescript
+
+mem used instantiating object = 48
+
+mem used instantiating object = 48
+
+mem used instantiating object = 48
+
+Do object functions refer to the same thing? false
+```
+
+## Tentative Conclusions
+
+* Using prototype is only significantly beneficial if there are lots of functions (and memory is tight).
+* ObjectUsingClosure is a good vanilla JS approach because:
+  * it leads nicely into Sergio's recommended TS structure
+  * it provides reasonable support for private members
